@@ -17,16 +17,16 @@ class LedStripsControl():
         self.led_shifter = Led_shifter(clock=LEDS_DRIVERS_CLOCK, data=LEDS_DRIVERS_DATA)
         self.default_rgb = Rgb()
         
-        self.ledStripsColors = {
-            "tv" : self.default_rgb,
-            "window" : self.default_rgb,
-            "monitors" : self.default_rgb,
-            "above_table" : self.default_rgb,
-            "under_table" : self.default_rgb
-        }
-        self.ledStrips = list(self.ledStripsColors.keys())
+        self.ledStrips = ["tv","window","monitors","above_table","under_table"]
+        self.ledStripsColors = {x : Rgb() for x in self.ledStrips}
 
-    def Set(self, newStripsColors):
+    def Set(self, newStripsColors: dict = dict()) -> None:
+        """
+        Set(self, newStripsColors)
+            Return None
+        
+        Sets led strip colors from dictionary
+        """
         logging.debug("Led_strips - Set")
         for strip in newStripsColors:
             if strip in self.ledStripsColors:
@@ -34,28 +34,50 @@ class LedStripsControl():
         self.UpdateLedStrips()
 
     def SetAll(self, color):
+        """
+        SetAll(self, color_manager_rgb)
+            Return None
+            
+        Sets each led strip to color then updates
+        """
         logging.debug("Led_strips - SetAll")
         for strip in self.ledStripsColors:
             self.ledStripsColors[strip] = color
         self.UpdateLedStrips()
 
-    def Clear(self):
+    def Clear(self) -> None:
+        """
+        Sets all led strips to black 0x000000
+        """
         logging.debug("Led_strips - Clear")
         self.SetAll(Rgb())
         self.UpdateLedStrips()
 
-    def Turn_on(self):
+    def Turn_on(self) -> None:
+        """
+        Sets all led strips to white 0xffffff
+        """
         logging.debug("Led_strips - Turn_on")
         self.SetAll(Rgb(255,255,255))
         self.UpdateLedStrips()
 
-    def Get_array(self):
+    def Get_array(self) -> list:
+        """
+        Get_array(self)
+            Return list of led strip colors
+        """
         logging.debug("Led_strips - Get_array")
         # require order [tv, window, monitors, above_table, under_table]
         return list(self.ledStripsColors.values())
 
-    def UpdateLedStrips(self):
-       self.led_shifter.Update_leds(self.Get_array())
+    def UpdateLedStrips(self) -> None:
+        """
+        UpdateLedStrips(self)
+            Return None
+        
+        Updates led strips from ledStripsColors list
+        """
+        self.led_shifter.Update_leds(self.Get_array())
 
 
 # lock them before using / changing
