@@ -1,0 +1,40 @@
+
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Relays control</title>
+        <meta charset="UTF-8" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+
+
+
+
+    <body>
+        <h2> Relays control </h2>
+
+        <div id="content">{{ relaysStatus }}</div> {# this is the original system_info passed in from the root view #}
+        
+        <script>
+        setInterval(function(){ // load the data from your endpoint into the div
+            $("#content").load("/relaysStatus.json")
+        },5000)
+        </script>
+
+        <ul>
+            {% for item in avaiableRelays %}
+                <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+    
+        <form action = "/relays" method="post">
+            <label>Relays:</label>
+            <input name=relays inputmode="numeric" pattern="[0-1]*">
+            <input type=submit value=Update>
+        </form>
+    
+        <a href="/">Main Page</a>
+    </body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Relays control</title>
+        <meta charset="UTF-8" />
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+
+
+    <body>
+        <h2> Leds control </h2>
+
+        <div id="content">{{ ledsStatus }}</div> {# this is the original system_info passed in from the root view #}
+        
+        <script>
+        setInterval(function(){ // load the data from your endpoint into the div
+            $("#content").load("/ledsStatus.json")
+        },5000)
+        </script>
+
+        <ul>
+            {% for item in avaiableRelays %}
+                <li>{{item}}</li>
+            {% endfor %}
+        </ul>
+    
+        <form action = "/leds" method="post">
+            <label>R:</label>
+            <input type=number name=R value=0 min="0" max="255"> 
+            <label>G:</label>
+            <input type=number name=G value=0 min="0" max="255">
+            <label>B:</label>
+            <input type=number name=B value=0 min="0" max="255">
+            <input type=submit value=Update>
+        </form>
+
+        <form action = "/leds" method="post">
+            <label>Color picker:</label>
+            <input type="color" id="leds_color" name="leds_color" value="#000000">
+            <input type=submit value=Update>
+        </form>
+
+        <a href="/">Main Page</a>
+    </body>
+</html>
