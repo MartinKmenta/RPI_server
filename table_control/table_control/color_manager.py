@@ -31,6 +31,9 @@ class Rgb():
     
     def __str__(self):
         return str(self.to_dict())
+    
+    def __repr__(self):
+        return repr(self.to_dict())
         
     @staticmethod
     def from_list(rgb_list: list = list()):
@@ -112,7 +115,8 @@ class Rgb():
         return 255 if (val > 255) else (0 if (val < 0) else int(val))
 
     @staticmethod
-    def FromRandom():
+    def FromRandom(seed = None):
+        random.seed(seed)
         """generates random color"""
         return Rgb.from_list([random.randint(0, 256) for x in range(3)])
     
@@ -127,8 +131,6 @@ class Rgb():
     # def Black(self):    return Rgb(  0,   0,   0)
 
 def _test():
-    random.seed(42)
-    
     Rgb()
     Rgb(255,255,255)
     
@@ -146,10 +148,7 @@ def _test():
     
     Rgb.FromHex("#FFFFFF")
     
-    print("Random color\t", Rgb.FromRandom())
+    print("Random color\t", Rgb.FromRandom(42))
         
-    
-    
-    
 if __name__ == "__main__":
     _test()
