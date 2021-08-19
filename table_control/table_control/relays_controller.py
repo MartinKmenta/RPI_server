@@ -6,17 +6,8 @@ class RelaysControl:
         logging.debug("RelaysControl - __init__")
         self.relays = Relays()  
         self.relaysValue = 0
-        self.relaysNames = {
-            "PcSwitch" : 0,
-            "none_1" : 1,
-            "PcPower" : 2,
-            "PcComponentsPower" : 3,
-            "none_4" : 4,
-            "none_5" : 5,
-            "none_6" : 6,
-            "LedsPower" : 7,
-        }
-        self.avaiableRelays = list(self.relaysNames.keys())
+        self.avaiableRelays = ("PcSwitch","none_1","PcPower","PcComponentsPower","none_4","none_5","none_6","LedsPower")
+        self.relaysNames = { name : i for i,name in enumerate(self.avaiableRelays)}
 
         # todo uncoment
         # self.TurnOfAll()
