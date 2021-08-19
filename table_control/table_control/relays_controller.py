@@ -1,6 +1,15 @@
 import logging
-from rpi_hardware import Relays
 
+try:
+    from rpi_hardware import Relays
+except ModuleNotFoundError:
+    class Relays:
+        def Set(self, value):
+            pass
+        
+        def Stop(self):
+            pass
+    
 class RelaysControl:
     def __init__(self):
         logging.debug("RelaysControl - __init__")
@@ -59,3 +68,7 @@ class RelaysControl:
             relaysStatus[relay] = (self.relaysValue >> self.relaysNames[relay]) & 1 == 1
         logging.debug(f"RelaysControl - status is: {relaysStatus}")
         return relaysStatus
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    relay_controller = RelaysControl()
