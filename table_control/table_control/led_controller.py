@@ -20,6 +20,7 @@ except ModuleNotFoundError as ex:
 class LedStripsControl():
     def __init__(self):
         logging.debug("Led_strips - __init__")
+        self.led_shifter = Led_shifter()
         
         self.ledStrips = ["tv","window","monitors","above_table","under_table"]
         self.ledStripsColors = {x : Rgb() for x in self.ledStrips}
@@ -37,7 +38,7 @@ class LedStripsControl():
                 self.ledStripsColors[strip] = newStripsColors[strip]
         self.UpdateLedStrips()
 
-    def SetAll(self, color):
+    def SetAll(self, color) -> None:
         """
         SetAll(self, color_manager_rgb)
             Return None
@@ -82,3 +83,51 @@ class LedStripsControl():
         Updates led strips from ledStripsColors list
         """
         self.led_shifter.Update_leds(self.Get_array())
+
+
+def _test_LedStripsControl(mode: int = 0):
+    def verify():
+        while input("Continue?").lower() not in ['','y','yes']:
+            print()
+        
+    modes = [
+                lambda : sleep(1),
+                verify
+            ]
+
+    action = modes[mode]    
+    
+    controller = LedStripsControl()
+    
+    # Turn_on
+    print("Set all to white")
+    controller.Turn_on()
+    
+    # test setting and getting colors
+    print("Set led strips to random color")
+    for x in range(3):
+        new_lscolors = controller.ledStripsColors
+        
+        for lstrip_key in controller.ledStrips:
+            color = Rgb.FromRandom(x)
+            new_lscolors[lstrip_key] = color
+            print(f"Setting {lstrip_key} to {color}")
+            controller.Set(new_lscolors)
+            assert controller.ledStripsColors == new_lscolors
+            action()
+    
+    # test set all
+    print("Set all to random color")
+    for x in range(3):
+        color = Rgb.FromRandom(x)
+        print(f"setting to {color}")
+        controller.SetAll(color)
+        action()
+    
+    print("Set all to black")
+    controller.Clear()
+    
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    _test_LedStripsControl(1)
