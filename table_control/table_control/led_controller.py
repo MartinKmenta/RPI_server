@@ -22,7 +22,7 @@ class LedStripsControl():
         logging.debug("Led_strips - __init__")
         self.led_shifter = Led_shifter()
         
-        self.ledStrips = ["tv","window","monitors","above_table","under_table"]
+        self.ledStrips = ("tv","window","monitors","above_table","under_table")
         self.ledStripsColors = {x : Rgb() for x in self.ledStrips}
 
     def Set(self, newStripsColors: dict = dict()) -> None:
