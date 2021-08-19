@@ -4,11 +4,15 @@ from time import sleep
 from RPi.GPIO import HIGH, LOW, OUT, IN
 import RPi.GPIO as gpio
 
+
+LEDS_DRIVERS_DATA  = 16
+LEDS_DRIVERS_CLOCK = 18
+
+
 RELAYS_DATA   =  8
 RELAYS_LATCH  = 10
 RELAYS_CLOCK  = 12
 RELAYS_PAUSE  = 0.03
-
 
 
 # for controling shift registers
@@ -105,7 +109,7 @@ class Relays():
 
 # for shifting led strips
 class Led_shifter():
-    def __init__(self, clock, data):
+    def __init__(self, clock = LEDS_DRIVERS_CLOCK, data = LEDS_DRIVERS_DATA):
         logging.debug("Led_shifter - __init__")
         self.pause     = 0
         self.data_pin  = data
