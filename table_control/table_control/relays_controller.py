@@ -42,7 +42,7 @@ class RelaysControl:
 
     def GetStatus(self):
         logging.debug("RelaysControl - GetStatus")
-        relaysStatus = {}
+        relaysStatus = dict()
         for relay in self.relaysNames:
             relaysStatus[relay] = (self.relaysValue >> self.relaysNames[relay]) & 1 == 1
         logging.debug(f"RelaysControl - status is: {relaysStatus}")
