@@ -43,7 +43,20 @@ class LedStripsControl():
         for strip in self.ledStripsColors:
             self.ledStripsColors[strip] = color
         self.UpdateLedStrips()
-
+        
+    def SetOne(self,color,target) -> None:
+        """
+        Updates target with color
+        """
+        logging.debug("Led_strips - SetOne")
+        
+        if target not in self.ledStrips:
+            logging.error("Wrong target, ignoring task")
+            return
+        
+        self.ledStripsColors[target] = color
+        self.UpdateLedStrips()
+        
     def Clear(self) -> None:
         """
         Sets all led strips to black 0x000000
