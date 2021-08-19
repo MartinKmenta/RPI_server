@@ -12,12 +12,18 @@ class RelaysControl:
         # todo uncoment
         # self.TurnOfAll()
 
-    def SetAll(self, value):
+    def SetAll(self, value) -> None:
+        """
+        Sets relays according to 8 bit number
+        """
         logging.debug(f"RelaysControl - SetAll {bin(value)}")
         self.relaysValue = value
         self.relays.Set(value)
 
-    def SetSome(self, values):
+    def SetSome(self, values) -> None:
+        """
+        values is a list of 8-bit numbers, calls Relays.Set from rpi_hardware
+        """
         logging.debug(f"RelaysControl - SetSome {values}")
         value = self.relaysValue
         for val in values:
@@ -35,12 +41,18 @@ class RelaysControl:
         # todo 
         self.relays.Set(value)
 
-    def TurnOfAll(self):
+    def TurnOfAll(self) -> None:
+        """
+        Sets relaysValue to 0x00 (base-16) and calls Relays.Stop() from rpi_hardware
+        """
         logging.debug("RelaysControl - TurnOfAll")
         self.relaysValue = 0x00
         self.relays.Stop()
 
-    def GetStatus(self):
+    def GetStatus(self) -> dict:
+        """
+        Return dictionary, keys = self.relaysNames, values = bool
+        """
         logging.debug("RelaysControl - GetStatus")
         relaysStatus = dict()
         for relay in self.relaysNames:

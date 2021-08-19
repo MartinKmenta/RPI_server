@@ -27,9 +27,6 @@ class LedStripsControl():
 
     def Set(self, newStripsColors: dict = dict()) -> None:
         """
-        Set(self, newStripsColors)
-            Return None
-        
         Sets led strip colors from dictionary
         """
         logging.debug("Led_strips - Set")
@@ -40,9 +37,6 @@ class LedStripsControl():
 
     def SetAll(self, color) -> None:
         """
-        SetAll(self, color_manager_rgb)
-            Return None
-            
         Sets each led strip to color then updates
         """
         logging.debug("Led_strips - SetAll")
@@ -68,8 +62,7 @@ class LedStripsControl():
 
     def Get_array(self) -> list:
         """
-        Get_array(self)
-            Return list of led strip colors
+        Return list of led strip colors
         """
         logging.debug("Led_strips - Get_array")
         # require order [tv, window, monitors, above_table, under_table]
@@ -77,9 +70,6 @@ class LedStripsControl():
 
     def UpdateLedStrips(self) -> None:
         """
-        UpdateLedStrips(self)
-            Return None
-        
         Updates led strips from ledStripsColors list
         """
         self.led_shifter.Update_leds(self.Get_array())
