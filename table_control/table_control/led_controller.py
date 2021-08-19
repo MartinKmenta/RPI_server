@@ -1,21 +1,13 @@
 from time import sleep
 import logging
-import threading
 
 from color_manager import Rgb
 from rpi_hardware import Led_shifter
 
-LEDS_DRIVERS_DATA  = 16
-LEDS_DRIVERS_CLOCK = 18
 
-# ! change if HW changes 
-# all controled led strips 
-# only structure stored in memory... use Leds_control's set/set_all to aply 
 class LedStripsControl():
     def __init__(self):
         logging.debug("Led_strips - __init__")
-        self.led_shifter = Led_shifter(clock=LEDS_DRIVERS_CLOCK, data=LEDS_DRIVERS_DATA)
-        self.default_rgb = Rgb()
         
         self.ledStrips = ["tv","window","monitors","above_table","under_table"]
         self.ledStripsColors = {x : Rgb() for x in self.ledStrips}
