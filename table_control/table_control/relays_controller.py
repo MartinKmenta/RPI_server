@@ -94,6 +94,42 @@ class RelaysControl:
         logging.debug(f"RelaysControl - status is: {relaysStatus}")
         return relaysStatus
 
+def _test_relays_controller():
+    def await_user_input():
+        while input("Continue?").lower() not in ['','y','yes']:
+            pass
+        
+    relay_controller = RelaysControl()
+    relay_controller.GetStatus()
+    
+    logging.debug("Turn on all")
+    relay_controller.SetAll(0b11111111)
+    relay_controller.GetStatus()
+    await_user_input()
+    
+    logging.debug("Turn off all") 
+    relay_controller.TurnOfAll()
+    relay_controller.GetStatus()
+    await_user_input()
+    
+    logging.debug("Turn on individualy")
+    x = 0x1
+    relay_controller.SetAll(x)
+    await_user_input()
+    
+    for _ in range(7):
+        x = x << 1
+        relay_controller.SetAll(x)
+        await_user_input()
+        
+    logging.debug("Turn on sequentialy")
+    x = 0x0
+    for _ in range(8):
+        x = (x << 1) + 0x1
+        relay_controller.SetAll(x)
+        await_user_input()
+    
+    
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    relay_controller = RelaysControl()
+    _test_relays_controller()
