@@ -11,6 +11,26 @@ except ModuleNotFoundError:
             pass
     
 class RelaysControl:
+    """
+    A class that interacts with register shifter for relay controll 
+    Uses Relays from rpi_hardware
+    
+    Attributes
+    ----------
+    relays : rpi_hardware.Relays
+        register shifter for relay controll
+    
+    relaysValue : int
+        binary number, representing array of bools
+        
+    avaiableRelays : tuple
+        tuple containing names of relays
+        
+    relaysNames : dictionary
+        keys = avaiableRelays, values = index(avaiableRelays)
+        hash map for quick lookup
+    
+    """
     def __init__(self):
         logging.debug("RelaysControl - __init__")
         self.relays = Relays()  
@@ -45,6 +65,9 @@ class RelaysControl:
         self.relays.Set(value)
 
     def StartPc(self):
+        """
+        sequence of operations that safely poweres PC
+        """
         logging.debug("RelaysControl - StartPc")
         value = self.relaysValue
         # todo 
@@ -60,7 +83,9 @@ class RelaysControl:
 
     def GetStatus(self) -> dict:
         """
-        Return dictionary, keys = self.relaysNames, values = bool
+        Return dictionary, keys = relaysNames, values = bool
+        
+        Converts relaysValue (8-bit) to dictonary, keys = relaysNames and values = bool representing if relay works
         """
         logging.debug("RelaysControl - GetStatus")
         relaysStatus = dict()
