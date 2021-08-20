@@ -90,7 +90,7 @@ class RelaysControl:
         logging.debug("RelaysControl - GetStatus")
         relaysStatus = dict()
         for relay in self.relaysNames:
-            relaysStatus[relay] = (self.relaysValue >> self.relaysNames[relay]) & 1 == 1
+            relaysStatus[relay] = (self.relaysValue >> self.relaysNames[relay]) & 1
         logging.debug(f"RelaysControl - status is: {relaysStatus}")
         return relaysStatus
 
@@ -114,12 +114,10 @@ def _test_relays_controller():
     
     logging.debug("Turn on individualy")
     x = 0x1
-    relay_controller.SetAll(x)
-    await_user_input()
-    
-    for _ in range(7):
-        x = x << 1
+    for i in range(8):
         relay_controller.SetAll(x)
+        relay_controller.GetStatus()
+        x = x << 1
         await_user_input()
         
     logging.debug("Turn on sequentialy")
@@ -127,6 +125,7 @@ def _test_relays_controller():
     for _ in range(8):
         x = (x << 1) + 0x1
         relay_controller.SetAll(x)
+        relay_controller.GetStatus()
         await_user_input()
     
     
