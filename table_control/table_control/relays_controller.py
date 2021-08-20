@@ -49,17 +49,15 @@ class RelaysControl:
         self.relaysValue = value
         self.relays.Set(value)
 
-    def SetSome(self, values) -> None:
+    def SetSome(self, NewRelayValues : dict = dict()) -> None:
         """
-        values is a list of 8-bit numbers, calls Relays.Set from rpi_hardware
+        Values is a dictionary, keys = avaiableRelays, values = bool
         """
-        logging.debug(f"RelaysControl - SetSome {values}")
+        logging.debug(f"RelaysControl - SetSome {NewRelayValues}")
         value = self.relaysValue
-        for val in values:
-            if val in self.relaysNames:
-                value ^= ((value >> self.relaysNames[val] & 1) ^ values[val]) << self.relaysNames[val]
-            else:
-                logging.error(f"RelaysControl - SetSome ERROR - value: {val} is not in relaysNames")
+        
+        for val in NewRelayValues:
+            value ^= 2**self.relaysNames[val]
 
         self.relaysValue = value
         self.relays.Set(value)
