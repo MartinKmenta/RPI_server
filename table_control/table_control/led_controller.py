@@ -5,7 +5,7 @@ from color_manager import Rgb
 
 class Led_shifter_debug():
     def Update_leds(self,rgb_arr):
-        pass
+        print(rgb_arr)
 
 # try importing rpi_hardware if not defined use dummy debug class
 try:

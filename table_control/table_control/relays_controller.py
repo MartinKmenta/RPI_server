@@ -5,10 +5,10 @@ try:
 except ModuleNotFoundError:
     class Relays:
         def Set(self, value):
-            pass
+            print(f"Relays: {bin(value)}")
         
         def Stop(self):
-            pass
+            print("Relays: Stop()")
     
 class RelaysControl:
     def __init__(self):
