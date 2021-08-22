@@ -121,5 +121,65 @@ class RelaysControl:
         self.relays_shifter.Set(self.Get_value())
 
 
+def _test_RelaysControl(mode: int = 0):
+    relay_controller = RelaysControl()
+
+    def verify():
+        while input("Continue?").lower() not in ['','y','yes']:
+            print()
+    
+    def statusAndVerify():
+        print(relay_controller.GetStatus())
+        verify()
+
+    
+    modes = [
+                lambda : sleep(1),
+                verify,
+                statusAndVerify
+            ]
+
+    action = modes[mode]    
+
+
+    print(relay_controller.GetStatus())
+    action()
+
+    relay_controller.SetFromValue(0xF0)
+    action()
+
+    relay_controller.SetFromValue(0x0F)
+    action()
+
+    relay_controller.TurnOfAll()
+    action()
+
+    relay_controller.StartPc()
+    action()
+
+    relay_controller.TurnOffPc()
+    action()
+
+    relay_controller.TurnOnPcComponents()
+    action()
+
+    relay_controller.TurnOffPcComponents()
+    action()
+
+    relay_controller.TurnOnLeds()
+    action()
+
+    relay_controller.TurnOffLeds()
+    action()
+    
+    relay_controller.TurnOfAll()
+    for relay_key in relay_controller.relays:
+        relay_controller.SetSome({relay_key : 1})
+        action()
+
+    relay_controller.TurnOfAll()
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.ERROR)
+    _test_RelaysControl(2)
