@@ -1,3 +1,4 @@
+from time import sleep
 import logging
 
 try:
@@ -5,10 +6,10 @@ try:
 except ModuleNotFoundError:
     class Relays:
         def Set(self, value):
-            pass
+            print(f"Relays: {bin(value)}")
         
         def Stop(self):
-            pass
+            print("Relays: Stop()")
     
 class RelaysControl:
     """
@@ -33,21 +34,13 @@ class RelaysControl:
     """
     def __init__(self):
         logging.debug("RelaysControl - __init__")
-        self.relays = Relays()  
-        self.relaysValue = 0
-        self.avaiableRelays = ("PcSwitch","none_1","PcPower","PcComponentsPower","none_4","none_5","none_6","LedsPower")
-        self.relaysNames = { name : i for i,name in enumerate(self.avaiableRelays)}
+        self.relays_shifter = Relays()  
+
+        self.relays = ("PcSwitch","none_1","PcPower","PcComponentsPower","none_4","none_5","none_6","LedsPower")
+        self.relaysValue = { name : 0 for i,name in enumerate(self.relays)}
 
         # todo uncoment
         # self.TurnOfAll()
-
-    def SetAll(self, value) -> None:
-        """
-        Sets relays according to 8 bit number
-        """
-        logging.debug(f"RelaysControl - SetAll {bin(value)}")
-        self.relaysValue = value
-        self.relays.Set(value)
 
     def SetSome(self, values) -> None:
         """
@@ -55,80 +48,161 @@ class RelaysControl:
         """
         logging.debug(f"RelaysControl - SetSome {values}")
         value = self.relaysValue
-        for val in values:
-            if val in self.relaysNames:
-                value ^= ((value >> self.relaysNames[val] & 1) ^ values[val]) << self.relaysNames[val]
+        for relayName in values:
+            if relayName in self.relays:
+                self.relaysValue[relayName] = values[relayName]
             else:
-                logging.error(f"RelaysControl - SetSome ERROR - value: {val} is not in relaysNames")
+                logging.error(f"RelaysControl - SetSome ERROR - value: {relayName} is not in relaysNames")
 
-        self.relaysValue = value
-        self.relays.Set(value)
+        self.UpdateRelays()
 
     def StartPc(self):
         """
         sequence of operations that safely poweres PC
         """
         logging.debug("RelaysControl - StartPc")
-        value = self.relaysValue
-        # todo 
-        self.relays.Set(value)
+        self.relaysValue["PcPower"] = 1
+        self.UpdateRelays()
+        sleep(1)
+        self.relaysValue["PcSwitch"] = 1
+        self.UpdateRelays()
+        sleep(1)
+        self.relaysValue["PcSwitch"] = 0
+        self.UpdateRelays()
+
+    def TurnOffPc(self):
+        logging.debug("RelaysControl - TurnOffPc")
+        self.relaysValue["PcPower"] = 0
+        self.relaysValue["PcComponentsPower"] = 0
+        self.UpdateRelays()
+
+    def TurnOnPcComponents(self):
+        logging.debug("RelaysControl - TurnOnPcComponents")
+        self.relaysValue["PcComponentsPower"] = 1
+        self.UpdateRelays()
+
+    def TurnOffPcComponents(self):
+        logging.debug("RelaysControl - TurnOffPcComponents")
+        self.relaysValue["PcComponentsPower"] = 0
+        self.UpdateRelays()
+
+    def TurnOnLeds(self):
+        logging.debug("RelaysControl - TurnOnLeds")
+        self.relaysValue["LedsPower"] = 1
+        self.UpdateRelays()
+
+    def TurnOffLeds(self):
+        logging.debug("RelaysControl - TurnOffLeds")
+        self.relaysValue["LedsPower"] = 0
+        self.UpdateRelays()
 
     def TurnOfAll(self) -> None:
+        # """
+        # Sets relaysValue to 0 for all elements in dict and calls Relays.Stop() from rpi_hardware
+        # """
+        # logging.debug("RelaysControl - TurnOfAll")
+        # self.relaysValue = { relaysValue[name] = 0 for name in relaysValue}
+        # self.relays.Stop()
         """
-        Sets relaysValue to 0x00 (base-16) and calls Relays.Stop() from rpi_hardware
+        Call SetFromValue with 0x00 to turn off all relays 
+        (possibility to use self.relays_shifter.Stop())
         """
         logging.debug("RelaysControl - TurnOfAll")
-        self.relaysValue = 0x00
-        self.relays.Stop()
+        self.SetFromValue(0x00)
 
     def GetStatus(self) -> dict:
         """
-        Return dictionary, keys = relaysNames, values = bool
-        
-        Converts relaysValue (8-bit) to dictonary, keys = relaysNames and values = bool representing if relay works
+        Return dictionary, keys = self.relaysNames, values = int
         """
-        logging.debug("RelaysControl - GetStatus")
-        relaysStatus = dict()
-        for relay in self.relaysNames:
-            relaysStatus[relay] = (self.relaysValue >> self.relaysNames[relay]) & 1
-        logging.debug(f"RelaysControl - status is: {relaysStatus}")
-        return relaysStatus
+        logging.debug(f"RelaysControl - GetStatus - status is: {self.relaysValue}")
+        return self.relaysValue
 
-def _test_relays_controller():
-    def await_user_input():
-        while input("Continue?").lower() not in ['','y','yes']:
-            pass
-        
+    def SetFromValue(self, value = 0x00) -> None:
+        """
+        Set registe values from 8 bit number representing relays values
+        """
+        logging.debug(f"RelaysControl - SetFromValue: {bin(value)}")
+        for i,relayName in enumerate(self.relays):
+            self.relaysValue[relayName] = value >> (7 - i) & 1
+        self.UpdateRelays()
+
+    def GetValue(self) -> int:
+        """
+        Return one 8 bit number representing relays values
+        """
+        logging.debug("RelaysControl - Get_value")
+        relaysVal = 0
+        for i,val in enumerate(self.relaysValue.values()):
+            relaysVal += val << (7 - i)
+        return relaysVal
+
+    def UpdateRelays(self) -> None:
+        """
+        Updates relays from relaysValue
+        """
+        logging.debug("RelaysControl - UpdateRelays")
+        self.relays_shifter.Set(self.GetValue())
+
+
+def _test_RelaysControl(mode: int = 0):
     relay_controller = RelaysControl()
-    relay_controller.GetStatus()
+
+    def verify():
+        while input("Continue?").lower() not in ['','y','yes']:
+            print()
     
-    logging.debug("Turn on all")
-    relay_controller.SetAll(0b11111111)
-    relay_controller.GetStatus()
-    await_user_input()
+    def statusAndVerify():
+        print(relay_controller.GetStatus())
+        verify()
+
     
-    logging.debug("Turn off all") 
+    modes = [
+                lambda : sleep(1),
+                verify,
+                statusAndVerify
+            ]
+
+    action = modes[mode]    
+
+
+    print(relay_controller.GetStatus())
+    action()
+
+    relay_controller.SetFromValue(0xF0)
+    action()
+
+    relay_controller.SetFromValue(0x0F)
+    action()
+
     relay_controller.TurnOfAll()
-    relay_controller.GetStatus()
-    await_user_input()
+    action()
+
+    relay_controller.StartPc()
+    action()
+
+    relay_controller.TurnOffPc()
+    action()
+
+    relay_controller.TurnOnPcComponents()
+    action()
+
+    relay_controller.TurnOffPcComponents()
+    action()
+
+    relay_controller.TurnOnLeds()
+    action()
+
+    relay_controller.TurnOffLeds()
+    action()
     
-    logging.debug("Turn on individualy")
-    x = 0x1
-    for i in range(8):
-        relay_controller.SetAll(x)
-        relay_controller.GetStatus()
-        x = x << 1
-        await_user_input()
-        
-    logging.debug("Turn on sequentialy")
-    x = 0x0
-    for _ in range(8):
-        x = (x << 1) + 0x1
-        relay_controller.SetAll(x)
-        relay_controller.GetStatus()
-        await_user_input()
-    
+    relay_controller.TurnOfAll()
+    for relay_key in relay_controller.relays:
+        relay_controller.SetSome({relay_key : 1})
+        action()
+
+    relay_controller.TurnOfAll()
+   
     
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    _test_relays_controller()
+    _test_RelaysControl(2)
