@@ -4,7 +4,6 @@ import logging
 from relays_controller import RelaysControl
 
 from color_manager import Rgb
-from led_controller import LedStripsControl # todo remove
 from led_effects import LedsEffectsControl
 
 
@@ -16,13 +15,9 @@ if __name__=="__main__":
     )
 
     RelaysControl._test_RelaysControl(0)
-    
+    LedsEffectsControl._test_LedsEffectsControl(0)
 
     relaysControl = RelaysControl()
     ledsEffectsControl = LedsEffectsControl()
-    
-    print(f"avaiableRelays: {relaysControl.relays}")
-    print(f"avaiableEffects: {ledsEffectsControl.avaiableEffects}")
-    print(f"avaiableLedStrips: {ledsEffectsControl.avaiableLedStrips}")
 
     logging.debug(f'end main')  
