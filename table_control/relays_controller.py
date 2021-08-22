@@ -150,6 +150,7 @@ class RelaysControl:
         def verify():
             while input("Continue?").lower() not in ['','y','yes']:
                 print()
+                sleep(0.01)
         
         def statusAndVerify():
             print(relay_controller.GetStatus())
@@ -164,8 +165,8 @@ class RelaysControl:
 
         action = modes[mode]    
 
-
         print(relay_controller.GetStatus())
+        print(f"avaiableRelays: {relaysControl.relays}")
         action()
 
         relay_controller.SetFromValue(0xF0)
