@@ -9,6 +9,7 @@ import threading
 import logging
 import json
 
+from color_manager import Rgb
 
 LEDS_DRIVERS_DATA  = 16
 LEDS_DRIVERS_CLOCK = 18
@@ -160,71 +161,6 @@ class RelaysControl:
         return relaysStatus
 
 
-# color object
-class Rgb():
-    def __init__(self, r = 0, g = 0, b = 0):
-        self.r = self.Set(r)
-        self.g = self.Set(g)
-        self.b = self.Set(b)
-        
-        # todo add more
-        self.colors = {
-            "random"    : {"r":random.randint(0, 256), "g":random.randint(0, 256), "b":random.randint(0, 256)},
-            "default"   : {"r":  0, "g":  0, "b":  0},
-
-            "white"     : {"r":255, "g":255, "b":255},
-            "red"       : {"r":255, "g":  0, "b":  0},
-            "green"     : {"r":  0, "g":255, "b":  0},
-            "blue"      : {"r":  0, "g":  0, "b":255},
-            "cyan"      : {"r":  0, "g":255, "b":255},
-            "magenta"   : {"r":255, "g":  0, "b":255},
-            "yellow"    : {"r":255, "g":255, "b":  0},
-            "black"     : {"r":  0, "g":  0, "b":  0}
-        }
-
-
-    def GetColor(self, color):
-        color = color.lower()
-        if(color in self.colors):
-            c = self.colors[color]
-            self.r = c["r"]
-            self.g = c["g"]
-            self.b = c["b"]
-            return self 
-        else:
-            logging.error("Rgb ERROR - unknown color: {color}")
-
-
-    # accepts string in formats: #000000, 0x000000
-    def FromHex(self, color):
-        logging.debug(f'Rgb - FromHex: {color}')
-        try:
-            if "#" in color:
-                color = color.replace("#", "0x")
-            colorHex = int(color, base=16)
-            self.r = (colorHex & 0xff0000) >> 16
-            self.g = (colorHex & 0xff00) >> 8
-            self.b = colorHex & 0xff
-            return self 
-        except:
-            logging.error(f'Rgb - FromHex - unable to decode color: {color}')
-        
-        return self.GetColor("default")
-
-    def Set(self, val):
-        return 255 if val > 255 else 0 if val < 0 else int(val)
-
-    # def Random(self):   return Rgb(random.randint(0, 256), random.randint(0, 256), random.randint(0, 256))
-    # def White(self):    return Rgb(255, 255, 255)
-    # def Red(self):      return Rgb(255,   0,   0)
-    # def Green(self):    return Rgb(  0, 255,   0)
-    # def Blue(self):     return Rgb(  0,   0, 255)
-    # def Cyan(self):     return Rgb(  0, 255, 255)
-    # def Magenta(self):  return Rgb(255,   0, 255)
-    # def Yellow(self):   return Rgb(255, 255,   0)
-    # def Black(self):    return Rgb(  0,   0,   0)
-
-
 # for shifting led strips
 class Led_shifter():
     def __init__(self, clock, data):
@@ -264,7 +200,8 @@ class Led_shifter():
 
     def Update_1_led_strip(self, rgb):
         logging.debug("Led_shifter - Update_1_led_strip")
-        logging.debug(str(rgb.r) + " " + str(rgb.g) + " " + str(rgb.b))
+        logging.debug(rgb)
+        
         data = 0x03 << 30
         data |= self.Get_anti_code(rgb.b) << 28
         data |= self.Get_anti_code(rgb.g) << 26
@@ -278,7 +215,7 @@ class Led_shifter():
         logging.debug("Led_shifter - Update_leds")
         self.Send_32_zero()
         for rgb in rgb_arr:
-            logging.debug(str(rgb.r) + " " + str(rgb.g) + " " + str(rgb.b))
+            logging.debug(rgb)
             self.Update_1_led_strip(rgb)
         self.Send_32_zero()
 
@@ -298,7 +235,7 @@ class LedStripsControl():
     def __init__(self):
         logging.debug("Led_strips - __init__")
         self.led_shifter = Led_shifter(clock=LEDS_DRIVERS_CLOCK, data=LEDS_DRIVERS_DATA)
-        self.default_rgb = Rgb().GetColor("black")
+        self.default_rgb = Rgb()
         
         self.ledStripsColors = {
             "tv" : self.default_rgb,
@@ -324,12 +261,12 @@ class LedStripsControl():
 
     def Clear(self):
         logging.debug("Led_strips - Clear")
-        self.SetAll(Rgb().Black())
+        self.SetAll(Rgb())
         self.UpdateLedStrips()
 
     def Turn_on(self):
         logging.debug("Led_strips - Turn_on")
-        self.SetAll(Rgb().White())
+        self.SetAll(Rgb(255,255,255))
         self.UpdateLedStrips()
 
     def Get_array(self):
@@ -399,7 +336,7 @@ class LedsEffect(threading.Thread):
     # static effects - requres to stop
     def RandomColor(self):
         logging.debug(f'RandomColor - done')
-        self.ledStripsControl.SetAll(Rgb().GetColor("random"))
+        self.ledStripsControl.SetAll(Rgb.FromRandom())
         self.StoppingEffect()
         
 
@@ -424,7 +361,7 @@ class LedsEffect(threading.Thread):
         logging.debug(f'RandomColorsBlinking')
         delay = self.GetDelay()
         while(not self.variables.stop_running_effect):
-            self.ledStripsControl.SetAll(Rgb().GetColor("random"))
+            self.ledStripsControl.SetAll(Rgb.FromRandom())
             sleep(delay)
         self.StoppingEffect()
 
@@ -473,7 +410,7 @@ class LedsEffectsControl:
         # leds strips cleanu
         # static effect - no need to stop it later
         sleep(0.01)
-        LedsEffect(self.variables, "OneColor", {"color":Rgb().GetColor("default")}).start()
+        LedsEffect(self.variables, "OneColor", {"color":Rgb()}).start()
 
 
     def GetStatus(self):
