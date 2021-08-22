@@ -23,6 +23,7 @@ class LedsEffect(threading.Thread):
         self.speed = 1 if ("speed" not in effect_args) else effect_args["speed"]
         
         self.effects = {
+            "CleanUp" : self.CleanUp,
             "RandomColor" : self.RandomColor,
             "OneColor" : self.OneColor,
             "MoreColors" : self.MoreColors,
@@ -60,7 +61,12 @@ class LedsEffect(threading.Thread):
         self.variables.lock.release()
 
 
-    # static effects - requires to stop
+    def CleanUp(self):
+        logging.debug('CleanUp - done')
+        self.ledStripsControl.CleanUp()
+        self.StoppingEffect()
+
+    # static effects - don't requires to stop
     def RandomColor(self):
         logging.debug('RandomColor - done')
         self.ledStripsControl.SetAll(Rgb.FromRandom())
@@ -136,33 +142,66 @@ class LedsEffectsControl:
 
         # leds strips cleanup
         # static effect - no need to stop it later
-        sleep(0.01)
+        sleep(0.05)
+        LedsEffect(self.variables, "CleanUp").start()
         LedsEffect(self.variables, "OneColor", {"color":Rgb()}).start()
 
 
     def GetStatus(self):
         return self.lastEffect["name"]
 
+    @staticmethod
+    def _test_LedsEffectsControl(mode: int = 0):
+        def verify():
+            while input("Continue?").lower() not in ['','y','yes']:
+                print()
+                sleep(0.01)
+            
+        def statusAndVerify():
+            print(ledsEffectsControl.GetStatus())
+            verify()
+
+        modes = [
+                    lambda : sleep(1),
+                    verify,
+                    statusAndVerify
+                ]
+
+        action = modes[mode]    
+
+        ledsEffectsControl = LedsEffectsControl()
+
+        # print(f"avaiableEffects: {ledsEffectsControl.avaiableEffects}")
+        # print(f"avaiableLedStrips: {ledsEffectsControl.avaiableLedStrips}")
+        # action()
+        
+        # ledsEffectsControl.StartEffect("OneColor", {"color":Rgb.FromColor("cyan")})
+        # action()
+
+        # ledsEffectsControl.StartEffect("MoreColors", 
+        #         {"stripsColors": 
+        #             { name : Rgb.FromRandom() for name in ledsEffectsControl.avaiableLedStrips}
+        #         }
+        #     )
+        # action()
+        
+        # ledsEffectsControl.StartEffect("RandomColorsBlinking")
+        # action()
+
+        # ledsEffectsControl.StopEffect()
+        # action()
+
+        ledsEffectsControl.StartEffect("RandomColorsBlinking")
+        action()
+
+        ledsEffectsControl.StartEffect("OneColor", 
+            {"color":Rgb().FromColor("red")})
+        action()
+
+        ledsEffectsControl.StopEffect()
+
 
 if __name__ == "__main__":
+    # logging.basicConfig(level=logging.ERROR)
     logging.basicConfig(level=logging.DEBUG)
-
-    # ledsEffectsControl = LedsEffectsControl()
-
-    # logging.warning("avaiableEffects")
-    # logging.warning(ledsEffectsControl.avaiableEffects)
-    # logging.warning("avaiableEffects")
-    # logging.warning(ledsEffectsControl.avaiableLedStrips)
-
-
-    # ledsEffectsControl.StartEffect("MoreColors", 
-    #     {"stripsColors": { "under_table":Rgb().GetColor("random")}})
-
-    # ledsEffectsControl.StopEffect()
-
-    # ledsEffectsControl.StartEffect("OneColor", 
-    #     {"color":Rgb().GetColor("cyan")})
-
-    # sleep(0.5)
-
-    # ledsEffectsControl.StopEffect()
+    LedsEffectsControl._test_LedsEffectsControl(2)
