@@ -87,50 +87,50 @@ class LedStripsControl():
         """
         self.led_shifter.Update_leds(self.Get_array())
 
+    @staticmethod
+    def _test_LedStripsControl(mode: int = 0):
+        def verify():
+            while input("Continue?").lower() not in ['','y','yes']:
+                print()
+            
+        modes = [
+                    lambda : sleep(1),
+                    verify
+                ]
 
-def _test_LedStripsControl(mode: int = 0):
-    def verify():
-        while input("Continue?").lower() not in ['','y','yes']:
-            print()
+        action = modes[mode]    
         
-    modes = [
-                lambda : sleep(1),
-                verify
-            ]
-
-    action = modes[mode]    
-    
-    controller = LedStripsControl()
-    
-    # Turn_on
-    print("Set all to white")
-    controller.Turn_on()
-    
-    # test setting and getting colors
-    print("Set led strips to random color")
-    for x in range(3):
-        new_lscolors = controller.ledStripsColors
+        controller = LedStripsControl()
         
-        for lstrip_key in controller.ledStrips:
+        # Turn_on
+        print("Set all to white")
+        controller.Turn_on()
+        
+        # test setting and getting colors
+        print("Set led strips to random color")
+        for x in range(3):
+            new_lscolors = controller.ledStripsColors
+            
+            for lstrip_key in controller.ledStrips:
+                color = Rgb.FromRandom(x)
+                new_lscolors[lstrip_key] = color
+                print(f"Setting {lstrip_key} to {color}")
+                controller.Set(new_lscolors)
+                assert controller.ledStripsColors == new_lscolors
+                action()
+        
+        # test set all
+        print("Set all to random color")
+        for x in range(3):
             color = Rgb.FromRandom(x)
-            new_lscolors[lstrip_key] = color
-            print(f"Setting {lstrip_key} to {color}")
-            controller.Set(new_lscolors)
-            assert controller.ledStripsColors == new_lscolors
+            print(f"setting to {color}")
+            controller.SetAll(color)
             action()
-    
-    # test set all
-    print("Set all to random color")
-    for x in range(3):
-        color = Rgb.FromRandom(x)
-        print(f"setting to {color}")
-        controller.SetAll(color)
-        action()
-    
-    print("Set all to black")
-    controller.Clear()
+        
+        print("Set all to black")
+        controller.Clear()
     
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    _test_LedStripsControl(1)
+    LedStripsControl._test_LedStripsControl(1)

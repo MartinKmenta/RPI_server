@@ -60,7 +60,7 @@ class LedsEffect(threading.Thread):
         self.variables.lock.release()
 
 
-    # static effects - requres to stop
+    # static effects - requires to stop
     def RandomColor(self):
         logging.debug('RandomColor - done')
         self.ledStripsControl.SetAll(Rgb.FromRandom())
@@ -134,7 +134,7 @@ class LedsEffectsControl:
         except:
             logging.warning('StopEffect - effect_thread ended before join')
 
-        # leds strips cleanu
+        # leds strips cleanup
         # static effect - no need to stop it later
         sleep(0.01)
         LedsEffect(self.variables, "OneColor", {"color":Rgb()}).start()
@@ -142,3 +142,27 @@ class LedsEffectsControl:
 
     def GetStatus(self):
         return self.lastEffect["name"]
+
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+
+    # ledsEffectsControl = LedsEffectsControl()
+
+    # logging.warning("avaiableEffects")
+    # logging.warning(ledsEffectsControl.avaiableEffects)
+    # logging.warning("avaiableEffects")
+    # logging.warning(ledsEffectsControl.avaiableLedStrips)
+
+
+    # ledsEffectsControl.StartEffect("MoreColors", 
+    #     {"stripsColors": { "under_table":Rgb().GetColor("random")}})
+
+    # ledsEffectsControl.StopEffect()
+
+    # ledsEffectsControl.StartEffect("OneColor", 
+    #     {"color":Rgb().GetColor("cyan")})
+
+    # sleep(0.5)
+
+    # ledsEffectsControl.StopEffect()
