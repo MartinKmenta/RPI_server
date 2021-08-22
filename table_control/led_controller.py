@@ -87,11 +87,19 @@ class LedStripsControl():
         """
         self.led_shifter.Update_leds(self.Get_array())
 
+    def CleanUp(self) -> None:
+        """
+        Cleans values in leds strips controll registers
+        """
+        self.led_shifter.Send_32_zero()
+        self.led_shifter.Send_32_zero()
+
     @staticmethod
     def _test_LedStripsControl(mode: int = 0):
         def verify():
             while input("Continue?").lower() not in ['','y','yes']:
                 print()
+                sleep(0.01)
             
         modes = [
                     lambda : sleep(1),
