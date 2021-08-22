@@ -119,16 +119,6 @@ class Rgb():
         random.seed(seed)
         """generates random color"""
         return Rgb.from_list([random.randint(0, 256) for x in range(3)])
-    
-    # def Random(self):   return Rgb(random.randint(0, 256), random.randint(0, 256), random.randint(0, 256))
-    # def White(self):    return Rgb(255, 255, 255)
-    # def Red(self):      return Rgb(255,   0,   0)
-    # def Green(self):    return Rgb(  0, 255,   0)
-    # def Blue(self):     return Rgb(  0,   0, 255)
-    # def Cyan(self):     return Rgb(  0, 255, 255)
-    # def Magenta(self):  return Rgb(255,   0, 255)
-    # def Yellow(self):   return Rgb(255, 255,   0)
-    # def Black(self):    return Rgb(  0,   0,   0)
 
 def _test():
     Rgb()
