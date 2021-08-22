@@ -12,6 +12,26 @@ except ModuleNotFoundError:
             print("Relays: Stop()")
     
 class RelaysControl:
+    """
+    A class that interacts with register shifter for relay controll 
+    Uses Relays from rpi_hardware
+    
+    Attributes
+    ----------
+    relays : rpi_hardware.Relays
+        register shifter for relay controll
+    
+    relaysValue : int
+        binary number, representing array of bools
+        
+    avaiableRelays : tuple
+        tuple containing names of relays
+        
+    relaysNames : dictionary
+        keys = avaiableRelays, values = index(avaiableRelays)
+        hash map for quick lookup
+    
+    """
     def __init__(self):
         logging.debug("RelaysControl - __init__")
         self.relays_shifter = Relays()  
@@ -37,6 +57,9 @@ class RelaysControl:
         self.UpdateRelays()
 
     def StartPc(self):
+        """
+        sequence of operations that safely poweres PC
+        """
         logging.debug("RelaysControl - StartPc")
         self.relaysValue["PcPower"] = 1
         self.UpdateRelays()
@@ -103,7 +126,7 @@ class RelaysControl:
             self.relaysValue[relayName] = value >> (7 - i) & 1
         self.UpdateRelays()
 
-    def Get_value(self) -> int:
+    def GetValue(self) -> int:
         """
         Return one 8 bit number representing relays values
         """
@@ -118,7 +141,7 @@ class RelaysControl:
         Updates relays from relaysValue
         """
         logging.debug("RelaysControl - UpdateRelays")
-        self.relays_shifter.Set(self.Get_value())
+        self.relays_shifter.Set(self.GetValue())
 
 
 def _test_RelaysControl(mode: int = 0):
@@ -178,8 +201,8 @@ def _test_RelaysControl(mode: int = 0):
         action()
 
     relay_controller.TurnOfAll()
-
+   
+    
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
-    # logging.basicConfig(level=logging.ERROR)
     _test_RelaysControl(2)
