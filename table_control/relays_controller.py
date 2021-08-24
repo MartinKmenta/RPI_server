@@ -96,19 +96,23 @@ class RelaysControl:
         self.relaysValue["LedsPower"] = 0
         self.UpdateRelays()
 
-    def TurnOfAll(self) -> None:
+    def TurnOffAll(self) -> None:
         # """
         # Sets relaysValue to 0 for all elements in dict and calls Relays.Stop() from rpi_hardware
         # """
-        # logging.debug("RelaysControl - TurnOfAll")
+        # logging.debug("RelaysControl - TurnOffAll")
         # self.relaysValue = { relaysValue[name] = 0 for name in relaysValue}
         # self.relays.Stop()
         """
         Call SetFromValue with 0x00 to turn off all relays 
         (possibility to use self.relays_shifter.Stop())
         """
-        logging.debug("RelaysControl - TurnOfAll")
+        logging.debug("RelaysControl - TurnOffAll")
         self.SetFromValue(0x00)
+
+    def TurnOnAll(self) -> None:
+        logging.debug("RelaysControl - TurnOnAll")
+        self.SetFromValue(0xFF)
 
     def GetStatus(self) -> dict:
         """

@@ -1,16 +1,10 @@
 from table_control.relays_controller import RelaysControl
 from table_control.led_effects import LedsEffectsControl, Rgb
 
-from flask import Flask, request, render_template
-app = Flask(__name__)
-
 import logging
 
-logging.basicConfig(
-    level=logging.DEBUG
-    # level=logging.WARNING
-    # level=logging.ERROR
-)
+from flask import Flask, request, render_template, jsonify
+app = Flask(__name__)
 
 relaysControl = RelaysControl()
 ledsEffectsControl = LedsEffectsControl()
@@ -33,8 +27,35 @@ def led_controller(value):
 
 def relays_controller(value):
     logging.debug(value)
-    if "relays" in value:
-        relaysControl.SetFromValue(int(value["relays"], 2))
+
+    # todo improve syntax
+    
+    if "Relays8bit" in value:
+        relaysControl.SetFromValue(value["Relays8bit"])
+    if "SetSome" in value:
+        relaysControl.SetSome(value["SetSome"])
+
+    if "TurnOnAll" in value:
+        relaysControl.TurnOnAll()
+    if "TurnOffAll" in value:
+        relaysControl.TurnOffAll()
+        
+    if "TurnOnPcComponents" in value:
+        relaysControl.TurnOnPcComponents()
+    if "TurnOffPcComponents" in value:
+        relaysControl.TurnOffPcComponents()
+
+    if "StartPc" in value:
+        relaysControl.StartPc()
+    if "TurnOffPc" in value:
+        relaysControl.TurnOffPc()
+
+    if "TurnOnLeds" in value:
+        relaysControl.TurnOnLeds()
+    if "TurnOffLeds" in value:
+        relaysControl.TurnOffLeds()
+
+
 
 # todo ajax to refresh sites
 
@@ -43,38 +64,42 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/leds',methods=['GET', 'POST'])
+@app.route('/leds',methods=['GET'])
 def leds():
-    if request.method == 'POST':
-        led_controller(request.form)
-    
     return render_template('leds.html')
 
 
-@app.route('/ledsStatus.json')
-def ledsStatus():
-    logging.error("ledsStatus.json")
-    logging.debug(f"ledsStatus.json => {ledsEffectsControl.GetStatus()}")
-    return ledsEffectsControl.GetStatus()
+# @app.route('/ledsStatus.json')
+# def ledsStatus():
+#     logging.debug("ledsStatus.json")
+#     logging.debug(f"ledsStatus.json => {ledsEffectsControl.GetStatus()}")
+#     return ledsEffectsControl.GetStatus()
 
 
-@app.route('/relays',methods=['GET', 'POST'])
+@app.route('/relays',methods=['GET'])
 def relays():
-    if request.method == 'POST':
-        relays_controller(request.form)
-    
-    return render_template('relays.html', avaiableRelays=relaysControl.avaiableRelays)
+    logging.debug("relays")
+    return render_template('relays.html', relaysValue=relaysControl.relaysValue, )
 
 
-@app.route('/relaysStatus.json')
-def relaysStatus():
-    logging.error("relaysStatus.json")
-    return relaysControl.GetStatus()
+@app.route('/setRelays',methods=['POST', 'GET'])
+def setRelays():
+    logging.debug("setRelays")
+    relays_controller(request.get_json())
+    return jsonify({'processed': 'true'})
 
 
-@app.route('/stat')
-def stat():
-    return "Nothing yet"
+@app.route('/relaysValue',methods=['POST', 'GET'])
+def relaysValue():
+    logging.debug("relaysValue")
+    return jsonify(relaysControl.GetStatus())
+
 
 if __name__ == '__main__':
     app.run()
+
+    logging.basicConfig(
+        level=logging.DEBUG
+        # level=logging.WARNING
+        # level=logging.ERROR
+    )

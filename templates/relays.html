@@ -9,32 +9,113 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
 
-
-
-
     <body>
         <h2> Relays control </h2>
-
-        <div id="content">{{ relaysStatus }}</div> {# this is the original system_info passed in from the root view #}
-        
-        <script>
-        setInterval(function(){ // load the data from your endpoint into the div
-            $("#content").load("/relaysStatus.json")
-        },5000)
-        </script>
-
-        <ul>
-            {% for item in avaiableRelays %}
-                <li>{{item}}</li>
+        <div>        
+            <button name=TurnOffAll onclick="SetRelays(this)">Turn off all</button>
+        </div>
+        <div>        
+            <button name=StartPc onclick="SetRelays(this)">Start pc</button>
+        </div>
+        <div>        
+            <button name=TurnOffPc onclick="SetRelays(this)">Turn off pc</button>
+        </div>
+        <div>        
+            <button name=TurnOnPcComponents onclick="SetRelays(this)">Turn on pc components</button>
+        </div>
+        <div>        
+            <button name=TurnOffPcComponents onclick="SetRelays(this)">Turn off pc components</button>
+        </div>
+        <div>        
+            <button name=TurnOnLeds onclick="SetRelays(this)">Turn on leds</button>
+        </div>
+        <div>        
+            <button name=TurnOffLeds onclick="SetRelays(this)">Turn off leds</button>
+        </div>
+        <div>
+            {% for item in relaysValue %}
+                <div>
+                    <input onChange="SetSomeRelay(this)" type=checkbox name={{item}} id={{item}}>
+                    <label>{{item}}</label>
+                </div>
             {% endfor %}
-        </ul>
-    
-        <form action = "/relays" method="post">
-            <label>Relays:</label>
-            <input name=relays inputmode="numeric" pattern="[0-1]*">
-            <input type=submit value=Update>
-        </form>
-    
+        </div>
+        <br>
         <a href="/">Main Page</a>
+        <br>
+        
+        <h3> Debug </h3>
+        <div>        
+            <label>Relays:</label>
+            <input id=Relays8bit name=Relays8bit inputmode="numeric" pattern="[0-1]*">
+            <button onclick="SetRelays8bit()">Update</button>
+        </div>
+        <br>
+        <div>        
+            <button name=TurnOnAll onclick="SetRelays(this)">Turn on all</button>
+        </div>
     </body>
+
+    <script>
+        function UpdateDataUsingAjax(){
+            $.ajax({
+                type: "POST",
+                url: "/relaysValue",
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(relaysValue) {
+                    console.log("GetDataAjax - relaysValue: %o", relaysValue);
+                    for (relay of Object.keys(relaysValue)) {
+                        document.getElementById([relay]).checked = relaysValue[relay] === 1;
+                    }
+                } 
+            });
+        };
+
+        function SendAjax(data){
+            $.ajax({
+                type: "POST",
+                url: "/setRelays",
+                data: data,
+                contentType: "application/json",
+                dataType: 'json',
+                success: function(result) {
+                    console.log("SendAjax - Result:");
+                    console.log(result);
+                } 
+            });
+        };
+
+        function SetSomeRelay(obj){
+            SendAjax(JSON.stringify({"SetSome" : {[obj.name] : $(obj).is(":checked")}}));
+        };
+
+        function SetRelays8bit(){
+            var strVal = document.getElementById("Relays8bit").value;
+            if(strVal === "" || strVal.length != 8)
+                alert("please enter correct value");
+            else{
+                var val = parseInt(strVal, 2);
+                if(val > 255 || val < 0)
+                    alert("ivalid value: " + strVal);
+                else{
+                    SendAjax(JSON.stringify({"Relays8bit" : val}));
+                    UpdateDataUsingAjax();
+                }
+            }
+        };
+
+        function SetRelays(obj){
+            SendAjax(JSON.stringify(([obj.name])));
+            UpdateDataUsingAjax();
+        };
+
+        // update relays data and set interval to update it regularly 
+        UpdateDataUsingAjax();
+
+        setInterval(function(){
+            relaysValue = UpdateDataUsingAjax();
+        },5000);
+
+    </script>
 </html>
