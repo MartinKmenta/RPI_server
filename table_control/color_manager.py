@@ -112,6 +112,7 @@ class Rgb():
         
     def Set(self, val: int = 0):
         """Checks if 0 <= val < 256""" 
+        val = int(val)
         return 255 if (val > 255) else (0 if (val < 0) else int(val))
 
     @staticmethod

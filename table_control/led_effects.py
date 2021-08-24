@@ -2,8 +2,8 @@ import threading
 import logging
 from time import sleep
 
-from color_manager import Rgb
-from led_controller import LedStripsControl
+from .color_manager import Rgb
+from .led_controller import LedStripsControl
 
 # lock them before using / changing
 class LedsEffectControlVariables():

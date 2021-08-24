@@ -2,7 +2,7 @@ from time import sleep
 import logging
 
 try:
-    from rpi_hardware import Relays
+    from .rpi_hardware import Relays
 except ModuleNotFoundError:
     class Relays:
         def Set(self, value):
