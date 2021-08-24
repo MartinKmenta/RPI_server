@@ -1,4 +1,5 @@
-from table_control.table_control import LedsEffectsControl, RelaysControl, Rgb
+from table_control.relays_controller import RelaysControl
+from table_control.led_effects import LedsEffectsControl, Rgb
 
 from flask import Flask, request, render_template
 app = Flask(__name__)
@@ -15,14 +16,17 @@ relaysControl = RelaysControl()
 ledsEffectsControl = LedsEffectsControl()
 
 def led_controller(value):
+    print(value)
     if "leds_color" in value:
         ledsEffectsControl.StartEffect("OneColor", 
-            {"color":Rgb().FromHex(value["leds_color"])}
+            {"color":Rgb.FromHex(value["leds_color"])}
         )
 
     if "r" in value and "g" in value and "b" in value:
+        print(value)
+        print(Rgb.from_dict(dict(value)))
         ledsEffectsControl.StartEffect("OneColor", 
-            {"color":Rgb(r=value["r"], g=value["g"], b=value["b"])}
+            {"color":Rgb.from_dict(dict(value))}
         )
 
 
@@ -30,9 +34,9 @@ def led_controller(value):
 def relays_controller(value):
     logging.debug(value)
     if "relays" in value:
-        relaysControl.SetAll(int(value["relays"], 2))
+        relaysControl.SetFromValue(int(value["relays"], 2))
 
-# todo ajak to refresh sites
+# todo ajax to refresh sites
 
 @app.route('/')
 def index():
