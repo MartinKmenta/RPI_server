@@ -50,7 +50,7 @@ class RelaysControl:
         value = self.relaysValue
         for relayName in values:
             if relayName in self.relays:
-                self.relaysValue[relayName] = values[relayName]
+                self.relaysValue[relayName] = int(values[relayName])
             else:
                 logging.error(f"RelaysControl - SetSome ERROR - value: {relayName} is not in relaysNames")
 
