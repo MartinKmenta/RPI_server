@@ -2,6 +2,7 @@ from table_control.relays_controller import RelaysControl
 from table_control.led_effects import LedsEffectsControl, Rgb
 
 import logging
+import time
 
 from flask import Flask, request, render_template, jsonify
 app = Flask(__name__)
@@ -9,16 +10,26 @@ app = Flask(__name__)
 relaysControl = RelaysControl()
 ledsEffectsControl = LedsEffectsControl()
 
+
+def now():
+    return time.strftime("%a, %d %b %Y %H:%M:%S")
+
+def log_to_file(msg):
+    with open("log.log", "a") as log_file:
+        log_file.write(now() + " => " + str(msg) + "\n")
+        logging.debug(now() + " => " + str(msg) + "\n")
+
+
 def led_controller(value):
-    print(value)
+    logging.debug(value)
     if "leds_color" in value:
         ledsEffectsControl.StartEffect("OneColor", 
             {"color":Rgb.FromHex(value["leds_color"])}
         )
 
     if "r" in value and "g" in value and "b" in value:
-        print(value)
-        print(Rgb.from_dict(dict(value)))
+        logging.debug(value)
+        logging.debug(Rgb.from_dict(dict(value)))
         ledsEffectsControl.StartEffect("OneColor", 
             {"color":Rgb.from_dict(dict(value))}
         )
@@ -96,14 +107,18 @@ def relaysValue():
 
 
 def create_app():
-   return app
+    log_to_file("app created for server start") 
+    return app
 
 
 if __name__ == '__main__':
-    app.run()
+
+    log_to_file("server started using main")
 
     logging.basicConfig(
         level=logging.DEBUG
         # level=logging.WARNING
         # level=logging.ERROR
     )
+
+    app.run()
