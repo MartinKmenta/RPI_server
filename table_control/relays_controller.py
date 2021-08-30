@@ -137,7 +137,7 @@ class RelaysControl:
         logging.debug("RelaysControl - Get_value")
         relaysVal = 0
         for i,val in enumerate(self.relaysValue.values()):
-            relaysVal += val << (7 - i)
+            relaysVal += val << i 
         return relaysVal
 
     def UpdateRelays(self) -> None:
