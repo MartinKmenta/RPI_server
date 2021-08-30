@@ -15,21 +15,21 @@ def now():
     return time.strftime("%a, %d %b %Y %H:%M:%S")
 
 def log_to_file(msg):
-    with open("log.log", "a") as log_file:
+    with open(".logs/log.log", "a") as log_file:
         log_file.write(now() + " => " + str(msg) + "\n")
         logging.debug(now() + " => " + str(msg) + "\n")
 
 
 def led_controller(value):
-    logging.debug(value)
+    print(value)
     if "leds_color" in value:
         ledsEffectsControl.StartEffect("OneColor", 
             {"color":Rgb.FromHex(value["leds_color"])}
         )
 
     if "r" in value and "g" in value and "b" in value:
-        logging.debug(value)
-        logging.debug(Rgb.from_dict(dict(value)))
+        print(value)
+        print(Rgb.from_dict(dict(value)))
         ledsEffectsControl.StartEffect("OneColor", 
             {"color":Rgb.from_dict(dict(value))}
         )
@@ -116,9 +116,9 @@ if __name__ == '__main__':
     log_to_file("server started using main")
 
     logging.basicConfig(
-        level=logging.DEBUG
+        # level=logging.DEBUG
         # level=logging.WARNING
-        # level=logging.ERROR
+        level=logging.ERROR
     )
 
     app.run()
