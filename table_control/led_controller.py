@@ -1,15 +1,21 @@
 from time import sleep
 import logging
 
-from .color_manager import Rgb
-
+try:
+    from .color_manager import Rgb
+except:
+    from color_manager import Rgb
+    
 class Led_shifter_debug():
     def Update_leds(self,rgb_arr):
         print(rgb_arr)
 
 # try importing rpi_hardware if not defined use dummy debug class
 try:
-    from .rpi_hardware import Led_shifter
+    try:
+        from .rpi_hardware import Led_shifter
+    except:
+        from rpi_hardware import Led_shifter
 except ModuleNotFoundError as ex:
     if __debug__:
         Led_shifter = Led_shifter_debug

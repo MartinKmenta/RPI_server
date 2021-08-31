@@ -2,8 +2,12 @@ import threading
 import logging
 from time import sleep
 
-from .color_manager import Rgb
-from .led_controller import LedStripsControl
+try:
+    from .color_manager import Rgb
+    from .led_controller import LedStripsControl
+except:
+    from color_manager import Rgb
+    from led_controller import LedStripsControl
 
 
 # lock them before using / changing
